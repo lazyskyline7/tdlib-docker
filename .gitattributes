@@ -37,3 +37,4 @@ sqlite/sqlite/* linguist-vendored
 
 *.pfx binary
 *.png binary
+README.md merge=ours
