@@ -37,7 +37,9 @@ struct SuggestedAction {
     PremiumGrace,
     StarsSubscriptionLowBalance,
     UserpicSetup,
-    Custom
+    Custom,
+    SetupLoginEmail,
+    SetupLoginEmailNoskip
   };
   Type type_ = Type::Empty;
   DialogId dialog_id_;
@@ -65,6 +67,10 @@ struct SuggestedAction {
 
   bool is_empty() const {
     return type_ == Type::Empty;
+  }
+
+  bool is_persistent() const {
+    return !is_empty() && type_ != Type::SetupLoginEmail && type_ != Type::SetupLoginEmailNoskip;
   }
 
   string get_suggested_action_str() const;
@@ -101,7 +107,7 @@ inline bool operator<(const SuggestedAction &lhs, const SuggestedAction &rhs) {
     return static_cast<int32>(lhs.type_) < static_cast<int32>(rhs.type_);
   }
   if (lhs.custom_type_ != rhs.custom_type_) {
-    return lhs.custom_type_ == rhs.custom_type_;
+    return lhs.custom_type_ < rhs.custom_type_;
   }
   return lhs.url_ < rhs.url_;
 }
