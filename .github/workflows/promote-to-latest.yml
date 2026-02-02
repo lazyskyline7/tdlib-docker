@@ -1,0 +1,36 @@
+name: Promote release to latest (manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: 'The release tag to promote'
+        required: true
+
+jobs:
+  promote:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          registry: docker.io
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Pull release image
+        run: |
+          IMAGE=lazyskyline/tdlib:${{ inputs.release_tag }}
+          echo "Pulling $IMAGE"
+          docker pull "$IMAGE"
+
+      - name: Tag as latest and push
+        run: |
+          RELEASE_IMAGE=lazyskyline/tdlib:${{ inputs.release_tag }}
+          LATEST_IMAGE=lazyskyline/tdlib:latest
+          echo "Tagging $RELEASE_IMAGE -> $LATEST_IMAGE"
+          docker tag "$RELEASE_IMAGE" "$LATEST_IMAGE"
+          docker push "$LATEST_IMAGE"

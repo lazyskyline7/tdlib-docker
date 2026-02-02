@@ -1,7 +1,7 @@
 # TDLib Docker Image
 
 [![Docker Pulls](https://img.shields.io/docker/pulls/lazyskyline/tdlib)](https://hub.docker.com/repository/docker/lazyskyline/tdlib)
-[![Deployment](https://github.com/lancehsu/tdlib-docker-build/actions/workflows/docker-image.yml/badge.svg)](https://github.com/lancehsu/tdlib-docker-build/actions/workflows/docker-image.yml)
+[![Deployment](https://github.com/lancehsu/tdlib-docker-build/actions/workflows/build-and-push.yml/badge.svg)](https://github.com/lancehsu/tdlib-docker-build/actions/workflows/build-and-push.yml)
 
 This repository provides a Docker image for [TDLib (Telegram Database Library)](https://core.telegram.org/tdlib), enabling easy and reproducible builds and deployments of TDLib in containerized environments.
 

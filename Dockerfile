@@ -6,7 +6,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 # Install build dependencies
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-        make zlib1g-dev libssl-dev gperf php-cli cmake clang libc++-dev libc++abi-dev && \
+        make zlib1g-dev libssl-dev gperf php-cli cmake clang libc++-dev libc++abi-dev libclang-rt-14-dev && \
     rm -rf /var/lib/apt/lists/*
 
 # Copy the source code
