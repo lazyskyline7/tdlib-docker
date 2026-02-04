@@ -1,7 +1,10 @@
 .git
 .gitignore
+.gitAttributes
 Dockerfile
 build/
 *.md
 benchmark/
 example/
+*.sh
+build.html

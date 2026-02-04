@@ -35,6 +35,13 @@ RUN --mount=type=cache,target=/root/.cache /bin/sh -lc '\
       cmake --build . --target install -- -j$PARALLEL; \
     fi'
 
+# Strip debug symbols from installed binaries and libraries to reduce image size,
+# then remove clang runtime files that are unnecessary in the final runtime.
+# This runs in the builder stage so stripped artifacts are copied into the final image.
+RUN find /usr/local/bin -type f -executable -exec strip --strip-unneeded {} + || true && \
+    find /usr/local/lib -type f -name '*.so*' -exec strip --strip-unneeded {} + || true && \
+    rm -rf /usr/lib/clang/14/lib/linux || true
+
 # Final stage
 FROM debian:bookworm-slim
 
