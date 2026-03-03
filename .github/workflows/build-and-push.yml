@@ -6,8 +6,6 @@ on:
       - build
     tags:
       - '*'
-  release:
-    types: [published]
 
 jobs:
   build-and-push:
@@ -38,6 +36,15 @@ jobs:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - name: Determine image tag
+        id: tag
+        run: |
+          if [[ "$GITHUB_REF" == refs/tags/* ]]; then
+            echo "tag=${GITHUB_REF#refs/tags/}" >> "$GITHUB_OUTPUT"
+          else
+            echo "tag=build" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Build and Push Multi-Arch Image
         uses: docker/build-push-action@v5
         with:
@@ -45,7 +52,7 @@ jobs:
           file: Dockerfile
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: lazyskyline/tdlib:latest
+          tags: lazyskyline/tdlib:${{ steps.tag.outputs.tag }}
           # Registry-backed build cache (speeds CI across runs and builders) - GHCR
           cache-from: type=registry,ref=ghcr.io/${{ github.repository_owner }}/tdlib-buildcache
           cache-to: type=registry,ref=ghcr.io/${{ github.repository_owner }}/tdlib-buildcache,mode=max
