@@ -51,17 +51,16 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         libssl3 zlib1g libc++1 && \
-    ldconfig && \
     rm -rf /var/lib/apt/lists/*
 
+# Create a non-root user for runtime
+RUN groupadd -r app && useradd -r -g app app
+
 # Copy the built libraries/binaries from the builder stage
-COPY --from=builder /usr/local /usr/local
+COPY --from=builder --chown=app:app /usr/local /usr/local
 
-# Create a non-root user for runtime and fix ownership
-RUN groupadd -r app && useradd -r -g app app && chown -R app:app /usr/local
-
-# Strip unneeded symbols to reduce image size (no-op if strip not present)
-RUN find /usr/local/bin -type f -executable -exec strip --strip-unneeded {} + || true
+# Update linker cache with newly copied libraries
+RUN ldconfig
 
 # Ensure /usr/local/bin is in PATH and run as non-root
 ENV PATH="/usr/local/bin:${PATH}"
