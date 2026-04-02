@@ -30,6 +30,16 @@ fi
 GIT_TAG_NAME="$TDLIB_VERSION"
 
 echo "Detected TDLib version: $TDLIB_VERSION"
+
+# Update version badge in README.md
+README_FILE="README.md"
+if [ -f "$README_FILE" ]; then
+  sed -i '' "s|TDLib-[0-9][0-9.]*-blue|TDLib-${TDLIB_VERSION}-blue|g" "$README_FILE"
+  echo "Updated version badge in $README_FILE to $TDLIB_VERSION."
+else
+  echo "Warning: $README_FILE not found, skipping badge update."
+fi
+
 echo "Attempting to add Git tag: $GIT_TAG_NAME"
 
 # Check if the tag already exists
