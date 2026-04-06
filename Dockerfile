@@ -20,10 +20,8 @@ ENV CXX=/usr/bin/clang++
 # Configure and build the project. Use cache for build tools (CMake, compilers).
 RUN --mount=type=cache,target=/root/.cache \
     cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX:PATH=/usr/local ..
-RUN --mount=type=cache,target=/root/.cache /bin/sh -lc '\
-    PARALLEL=$(nproc) && \
-    if [ "$PARALLEL" -gt 1 ]; then PARALLEL=$((PARALLEL-1)); fi && \
-    cmake --build . --parallel $PARALLEL --target install'
+RUN --mount=type=cache,target=/root/.cache \
+    cmake --build . --parallel $(nproc) --target install
 
 # Strip debug symbols and remove static libs, headers, cmake files
 RUN find /usr/local/lib -type f -name '*.so*' -exec strip --strip-unneeded {} + || true && \
