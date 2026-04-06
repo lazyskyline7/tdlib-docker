@@ -1,13 +1,10 @@
 # Build stage
-FROM debian:bookworm AS builder
-
-ENV DEBIAN_FRONTEND=noninteractive
+FROM alpine:3.21 AS builder
 
 # Install build dependencies
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-        make zlib1g-dev libssl-dev gperf php-cli cmake clang libc++-dev libc++abi-dev libclang-rt-14-dev && \
-    rm -rf /var/lib/apt/lists/*
+RUN apk add --no-cache \
+    make zlib-dev openssl-dev gperf php83 cmake clang libc++-dev \
+    compiler-rt linux-headers llvm-libunwind-dev
 
 # Copy the source code
 COPY . /td
@@ -26,41 +23,27 @@ RUN --mount=type=cache,target=/root/.cache \
 RUN --mount=type=cache,target=/root/.cache /bin/sh -lc '\
     PARALLEL=$(nproc) && \
     if [ "$PARALLEL" -gt 1 ]; then PARALLEL=$((PARALLEL-1)); fi && \
-    # Extract major and minor from cmake version using sed to avoid complex awk quoting
-    set -- $(cmake --version | head -n1 | sed -E '\''s/[^0-9]*([0-9]+)\.([0-9]+).*/\1 \2/'\'') && \
-    MAJOR=$1 && MINOR=$2 && \
-    if [ "$MAJOR" -gt 3 ] || { [ "$MAJOR" -eq 3 ] && [ "$MINOR" -ge 12 ]; }; then \
-      cmake --build . --parallel $PARALLEL --target install; \
-    else \
-      cmake --build . --target install -- -j$PARALLEL; \
-    fi'
+    cmake --build . --parallel $PARALLEL --target install'
 
-# Strip debug symbols from installed binaries and libraries to reduce image size,
-# then remove clang runtime files that are unnecessary in the final runtime.
-# This runs in the builder stage so stripped artifacts are copied into the final image.
-RUN find /usr/local/bin -type f -executable -exec strip --strip-unneeded {} + || true && \
-    find /usr/local/lib -type f -name '*.so*' -exec strip --strip-unneeded {} + || true && \
-    rm -rf /usr/lib/clang/14/lib/linux || true
+# Strip debug symbols and remove static libs, headers, cmake files
+RUN find /usr/local/lib -type f -name '*.so*' -exec strip --strip-unneeded {} + || true && \
+    find /usr/local/lib -type f -name '*.a' -delete && \
+    rm -rf /usr/local/include /usr/local/lib/cmake
 
 # Final stage
-FROM debian:bookworm-slim
-
-ENV DEBIAN_FRONTEND=noninteractive
+FROM alpine:3.21
 
 # Install only runtime dependencies
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-        libssl3 zlib1g libc++1 && \
-    rm -rf /var/lib/apt/lists/*
+RUN apk add --no-cache libssl3 zlib libc++ libgcc llvm-libunwind
 
 # Create a non-root user for runtime
-RUN groupadd -r app && useradd -r -g app app
+RUN addgroup -S app && adduser -S app -G app
 
-# Copy the built libraries/binaries from the builder stage
-COPY --from=builder --chown=app:app /usr/local /usr/local
+# Copy only the shared library from the builder stage
+COPY --from=builder --chown=app:app /usr/local/lib/libtdjson.so* /usr/local/lib/
 
 # Update linker cache with newly copied libraries
-RUN ldconfig
+RUN ldconfig /usr/local/lib || true
 
 # Ensure /usr/local/bin is in PATH and run as non-root
 ENV PATH="/usr/local/bin:${PATH}"
