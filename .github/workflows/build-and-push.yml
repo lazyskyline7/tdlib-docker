@@ -145,6 +145,6 @@ jobs:
         uses: peter-evans/dockerhub-description@v4
         with:
           username: ${{ vars.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
           repository: lazyskyline/tdlib
           readme-filepath: ./README.md
