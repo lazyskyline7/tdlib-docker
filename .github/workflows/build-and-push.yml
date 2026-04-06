@@ -83,3 +83,18 @@ jobs:
           || gh release edit "${{ github.ref_name }}" \
             --title "${{ github.ref_name }}" \
             --notes "${{ steps.get_changes.outputs.body }}"
+
+  update-dockerhub-description:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Update Docker Hub Description
+        uses: peter-evans/dockerhub-description@v4
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          repository: lazyskyline/tdlib
+          readme-filepath: ./README.md
