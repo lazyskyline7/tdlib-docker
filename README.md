@@ -11,8 +11,8 @@ Pre-built, multi-arch Docker image for [TDLib (Telegram Database Library)](https
 |---|---|
 | **Image** | [`lazyskyline/tdlib`](https://hub.docker.com/r/lazyskyline/tdlib) |
 | **Architectures** | `linux/amd64`, `linux/arm64` |
-| **Base** | `debian:bookworm-slim` |
-| **Compressed Size** | ~62 MB |
+| **Base** | `alpine:3.21` |
+| **Compressed Size** | ~26 MB |
 
 ## Quick Start
 
