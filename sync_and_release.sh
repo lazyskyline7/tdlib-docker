@@ -45,7 +45,7 @@ read -p "Push all? [y/N] " -n 1 -r
 echo ""
 
 if [[ $REPLY =~ ^[Yy]$ ]]; then
-    git push origin master build "${VERSION}"
+    git push origin master build -f "${VERSION}"
     echo ""
     echo "Done! CI/CD will build and release ${VERSION}."
 else

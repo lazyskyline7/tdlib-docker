@@ -44,12 +44,11 @@ echo "Attempting to add Git tag: $GIT_TAG_NAME"
 
 # Check if the tag already exists
 if git rev-parse --verify --quiet "$GIT_TAG_NAME" >/dev/null; then
-  echo "Error: Git tag '$GIT_TAG_NAME' already exists."
-  exit 1
+  echo "Warning: Git tag '$GIT_TAG_NAME' already exists. Updating to current commit."
+  git tag -f "$GIT_TAG_NAME"
+else
+  git tag "$GIT_TAG_NAME"
 fi
-
-# Add the Git tag
-git tag "$GIT_TAG_NAME"
 
 if [ $? -eq 0 ]; then
   echo "Successfully added Git tag '$GIT_TAG_NAME'."
