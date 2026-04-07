@@ -114,7 +114,7 @@ jobs:
         run: |
           TAG=${GITHUB_REF#refs/tags/}
           echo "Current tag: $TAG"
-          git fetch --tags
+          git fetch --tags --force
           PREV_TAG=$(git describe --tags --abbrev=0 "$TAG"^ 2>/dev/null || git tag --sort=-creatordate | grep -v "^$TAG$" | head -n1 || true)
           if [ -n "$PREV_TAG" ]; then RANGE="$PREV_TAG..$TAG"; else RANGE="$TAG"; fi
           BODY=$(git log "$RANGE" --pretty=format:'- %s (%h) — %an')
